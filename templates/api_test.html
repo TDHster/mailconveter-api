@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Form</title>
+</head>
+<body>
+
+<h2>API Test Form</h2>
+
+<form action="/convertfile" method="post" enctype="multipart/form-data">
+    <label for="file">Select a file:</label>
+    <input type="file" name="file" id="file" accept=".msg, .eml" required>
+    <br>
+    <input type="submit" value="Upload and Convert">
+</form>
+
+</body>
+</html>
