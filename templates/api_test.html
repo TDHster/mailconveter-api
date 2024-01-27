@@ -4,56 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Test Form</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 20px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        h2 {
-            color: #333;
-        }
-
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        p {
-            color: #333; /* Dark gray color */
-            font-size: 14px;
-            margin-bottom: 20px; /* Increased margin */
-        }
-
-        input[type="file"] {
-            padding: 10px;
-            margin-bottom: 10px; /* Reduced margin */
-        }
-
-        input[type="submit"] {
-            background-color: #4caf50;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
@@ -61,8 +12,8 @@
 
 <form action="/convertfile" method="post" enctype="multipart/form-data">
     <label for="file">Select a file:</label>
-    <input type="file" name="file" id="file" accept="{{ allowed_extensions|join(', ') }}" required>
-    <p>Allowed file extensions: {{ allowed_extensions|join(', ') }}</p>
+    <input type="file" name="file" id="file" accept="{{ allowed_extensions_string }}" required>
+    <p>Allowed file extensions: <em>{{ allowed_extensions_string }}</em></p>
     <br>
     <input type="submit" value="Upload and Convert">
 </form>

@@ -61,11 +61,19 @@ def upload_file():
             print('Original file not found while running convert function.')
 
         # Send API answer
-        if converted_file_path.is_file():
-            print(f'Sending answer with {converted_file_path}')
-            return send_file(converted_file_path, as_attachment=True, download_name=converted_file_path.name)
+        # if converted_file_path.is_file():
+        #     print(f'Sending answer with {converted_file_path}')
+        #     return send_file(converted_file_path, as_attachment=True, download_name=converted_file_path.name)
+        # else:
+        #     return jsonify({'error': 'Converted file not found'})
+
+        if converted_file_path:
+            # Render a new template with API status code and answers
+            return render_template('conversion_result.html', status_code=200, message='Conversion successful',
+                                   file_path=converted_file_path)
         else:
-            return jsonify({'error': 'Converted file not found'})
+            # Render a new template with API status code and answers for failure
+            return render_template('conversion_result.html', status_code=500, error='Conversion failed')
 
 
 @app.route('/status', methods=['GET'])
@@ -75,7 +83,8 @@ def check_status():
 
 @app.route('/api_test')
 def api_test_form():
-    return render_template('api_test.html', allowed_extensions=allowed_extensions)
+    allowed_extensions_string = ', '.join(allowed_extensions)
+    return render_template('api_test.html', allowed_extensions_string=allowed_extensions_string)
 
 
 if __name__ == '__main__':
