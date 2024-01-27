@@ -75,7 +75,7 @@ def check_status():
 
 @app.route('/api_test')
 def api_test_form():
-    return render_template('api_test.html')
+    return render_template('api_test.html', allowed_extensions=allowed_extensions)
 
 
 if __name__ == '__main__':
