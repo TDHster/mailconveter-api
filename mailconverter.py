@@ -1,23 +1,41 @@
 import tempfile
-from flask import Flask, request, jsonify, send_file, render_template
+from flask import Flask, request, jsonify, send_file, render_template, url_for
 from pathlib import Path
 from werkzeug.utils import secure_filename
 import subprocess
 import requests
-
+import shutil
+import json
 
 app = Flask(__name__)
 
+TEMP_UPLOAD_FOLDER = Path.cwd() / 'temp_uploads'
+TEMP_UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+TEMP_REPONSE_FOLDER = Path.cwd() / 'temp_response'
+# Save the API response file to another temporary directory with the extracted filename
+TEMP_REPONSE_FOLDER.mkdir(parents=True, exist_ok=True)
+DOWNLOAD_RESPONSE_URL = '/download_response/'
 
-UPLOAD_FOLDER = Path.cwd() / 'temp_uploads'
-UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = TEMP_UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # Limit file size to 200 MB
 allowed_extensions = {'.msg', '.eml'}
 convert_to_extension = '.pdf'
 wine_path = 'wine'
 converter_path = 'cp'
+
+
+# def url_root():
+#     return request.url_root
+
+def clear_folder(folder_path):
+    folder_path = Path(folder_path)
+    if folder_path.is_dir():
+        # Use shutil.rmtree to remove the entire directory and its contents
+        shutil.rmtree(folder_path)
+        folder_path.mkdir(parents=True, exist_ok=True)
+        print(f"Cleared and recreated the folder: {folder_path}")
+    else:
+        print(f"Folder '{folder_path}' does not exist.")
 
 
 def allowed_file(filename):
@@ -52,7 +70,7 @@ def upload_file():
     else:
         return jsonify({'error': 'Wrong extension', 'allowed_extensions': allowed_extensions}), 400  # Bad Request
 
-    with tempfile.TemporaryDirectory(dir=UPLOAD_FOLDER) as random_temp_subfolder:
+    with tempfile.TemporaryDirectory(dir=TEMP_UPLOAD_FOLDER) as random_temp_subfolder:
         file_path = Path(random_temp_subfolder, filename)
         file.save(file_path)
         print(f'Uploaded file saved: {file_path=}')
@@ -70,16 +88,19 @@ def check_status():
     return jsonify({'status': 'ok'}), 200
 
 
-@app.route('/api_test')
-def api_test():
-    allowed_extensions_string = ', '.join(allowed_extensions)
-    return render_template('api_test.html', allowed_extensions_string=allowed_extensions_string)
+# @app.route('/api_test')
+# def api_test():
+#     allowed_extensions_string = ', '.join(allowed_extensions)
+#     return render_template('api_test.html', allowed_extensions_string=allowed_extensions_string)
 
 
-api_endpoint = 'http://127.0.0.1:5000/convertfile'
+# api_endpoint = 'http://127.0.0.1:5000/convertfile'
+# api_endpoint = f'http://{get_own_url()}:5000/convertfile'
 
 @app.route('/api_test_form', methods=['GET', 'POST'])
 def api_test_form():
+    url_root = request.url_root
+    api_endpoint = f"{url_root}convertfile"
     allowed_extensions_string = ', '.join(allowed_extensions)
     if request.method == 'POST':
         file = request.files.get('file')
@@ -87,12 +108,13 @@ def api_test_form():
         if not file:
             return render_template(
                 'api_test_form.html',
+                api_endpoint=api_endpoint,
                 error_message='No file selected',
                 allowed_extensions_string=allowed_extensions_string
             )
 
         # Save the uploaded file to the temporary directory
-        temp_upload_folder = UPLOAD_FOLDER
+        temp_upload_folder = TEMP_UPLOAD_FOLDER
         temp_upload_folder.mkdir(parents=True, exist_ok=True)
 
         temp_file_path = temp_upload_folder / file.filename
@@ -105,24 +127,29 @@ def api_test_form():
 
             # Check if the API request was successful (status code 200)
             if api_response.status_code == 200:
-                # Save the API response file to another temporary directory
-                temp_response_folder = Path.cwd() / 'temp_response'
-                temp_response_folder.mkdir(parents=True, exist_ok=True)
+                # Extract the filename from the Content-Disposition header
+                content_disposition = api_response.headers.get('Content-Disposition', '')
+                converted_filename = content_disposition.replace('attachment; filename=', '').strip('"')
 
-                temp_response_file_path = temp_response_folder / file.filename
+                temp_response_file_path = TEMP_REPONSE_FOLDER / converted_filename
                 with open(temp_response_file_path, 'wb') as response_file:
                     response_file.write(api_response.content)
 
-                # Render the HTML page with success message and link to download the response file
-                return render_template('api_test_form.html', success_message='API request successful',
-                                       api_response_headers=api_response.headers,
-                                       download_link=f'/download_response/{file.filename}',
+                formatted_api_response_headers = json.dumps(dict(api_response.headers), indent=4)
+
+                return render_template('api_test_form.html',
+                                       success_message=f'API request successful, status code: {api_response.status_code}',
+                                       api_endpoint=api_endpoint,
+                                       api_response_headers=formatted_api_response_headers,
+                                       download_link=f'{DOWNLOAD_RESPONSE_URL}{converted_filename}',
+                                       download_filename=f'{converted_filename}',
                                        allowed_extensions_string=allowed_extensions_string
                                        )
 
             else:
                 # Render the HTML page with error message and API response status code
                 return render_template('api_test_form.html',
+                                       api_endpoint=api_endpoint,
                                        error_message=f'API request failed (Status Code: {api_response.status_code})',
                                        allowed_extensions_string=allowed_extensions_string
                                        )
@@ -130,15 +157,29 @@ def api_test_form():
         except requests.RequestException as e:
             # Render the HTML page with error message if the API request encounters an exception
             return render_template('api_test_form.html',
+                                   api_endpoint=api_endpoint,
                                    error_message=f'API request failed: {str(e)}',
                                    allowed_extensions_string=allowed_extensions_string
                                    )
 
     # Render the initial HTML page for GET requests
     return render_template('api_test_form.html',
+                           api_endpoint = api_endpoint,
                            allowed_extensions_string=allowed_extensions_string
                            )
 
 
+@app.route(f'{DOWNLOAD_RESPONSE_URL}<filename>')
+def download_response(filename):
+    temp_response_file_path = TEMP_REPONSE_FOLDER / filename
+    if temp_response_file_path.is_file():
+        return send_file(temp_response_file_path, as_attachment=True, download_name=filename)
+    else:
+        return render_template('api_test_form.html', error_message='Downloaded file not found')
+
+
+
 if __name__ == '__main__':
+    clear_folder(TEMP_REPONSE_FOLDER)
+    clear_folder(TEMP_UPLOAD_FOLDER)
     app.run(debug=True, port=5000)
