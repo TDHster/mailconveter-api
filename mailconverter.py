@@ -113,7 +113,6 @@ def api_test_form():
                 allowed_extensions_string=allowed_extensions_string
             )
 
-        # Save the uploaded file to the temporary directory
         temp_upload_folder = TEMP_UPLOAD_FOLDER
         temp_upload_folder.mkdir(parents=True, exist_ok=True)
 
@@ -135,7 +134,11 @@ def api_test_form():
                 with open(temp_response_file_path, 'wb') as response_file:
                     response_file.write(api_response.content)
 
-                formatted_api_response_headers = json.dumps(dict(api_response.headers), indent=4)
+                try:
+                    formatted_api_response_headers = json.dumps(dict(api_response.headers), indent=4)
+                except Exception as _:
+                    print(f'Error to prettify with {_}, {api_response.headers=}')
+                    formatted_api_response_headers = api_response.headers
 
                 return render_template('api_test_form.html',
                                        success_message=f'API request successful, status code: {api_response.status_code}',
@@ -147,7 +150,6 @@ def api_test_form():
                                        )
 
             else:
-                # Render the HTML page with error message and API response status code
                 return render_template('api_test_form.html',
                                        api_endpoint=api_endpoint,
                                        error_message=f'API request failed (Status Code: {api_response.status_code})',
@@ -182,4 +184,4 @@ def download_response(filename):
 if __name__ == '__main__':
     clear_folder(TEMP_REPONSE_FOLDER)
     clear_folder(TEMP_UPLOAD_FOLDER)
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)
