@@ -51,7 +51,9 @@ def convert_file(original_file_path):
     # subprocess.run([converter_path, str(original_path), str(converted_file_path)])
     try:
         print('Running:', wine_path, converter_path, str(original_path), str(converted_file_path))
-        subprocess.run([wine_path, converter_path, str(original_path), str(converted_file_path)])
+        subprocess.run([wine_path, converter_path, str(original_path), str(converted_file_path)], check=True)
+        print(f'\tIn convert_file: {str(original_path)=}, {str(converted_file_path)}, {str(converted_file_path.is_file())}')
+
     except Exception as e:
         print(f'Error while running converter {e}')
         return None
