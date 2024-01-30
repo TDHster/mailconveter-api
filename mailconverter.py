@@ -49,6 +49,7 @@ def convert_file(original_file_path):
     converted_file_path = original_path.with_suffix(convert_to_extension)
     # subprocess.run([converter_path, str(original_path), str(converted_file_path)])
     try:
+        print('Running:', wine_path, converter_path, str(original_path), str(converted_file_path))
         subprocess.run([wine_path, converter_path, str(original_path), str(converted_file_path)])
     except Exception as e:
         print(f'Error while running converter {e}')
@@ -78,8 +79,8 @@ def upload_and_convert_file():
         print(f'Uploaded file saved: {file_path=}')
 
         converted_file_path = convert_file(file_path)
+        print(f'Get converted result in: {converted_file_path}')
         if converted_file_path:
-            print(f'Converted to: {converted_file_path}')
             return send_file(converted_file_path, as_attachment=True, download_name=converted_file_path.name), 200
         else:
             return jsonify({'error': 'Converted while converter run.'}), 404  # Not Found
