@@ -26,4 +26,5 @@ HEALTHCHECK --interval=5m --timeout=10s --retries=3 \
 
 EXPOSE 5000
 
-CMD ["python3", "mailconverter.py"]
+#CMD ["python3", "mailconverter.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "mailconverter:app"]
