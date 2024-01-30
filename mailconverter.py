@@ -24,8 +24,6 @@ wine_path = 'wine'
 converter_path = 'MailConverter.exe'
 
 
-# def url_root():
-#     return request.url_root
 
 def clear_folder(folder_path):
     folder_path = Path(folder_path)
@@ -49,8 +47,12 @@ def convert_file(original_file_path):
         return None  # File not found
 
     converted_file_path = original_path.with_suffix(convert_to_extension)
-    subprocess.run([converter_path, str(original_path), str(converted_file_path)])
-    # subprocess.run([wine_path, converter_path, str(original_path), str(converted_file_path)])
+    # subprocess.run([converter_path, str(original_path), str(converted_file_path)])
+    try:
+        subprocess.run([wine_path, converter_path, str(original_path), str(converted_file_path)])
+    except Exception as e:
+        print(f'Error while running converter {e}')
+        return None
 
     return converted_file_path
 
@@ -80,7 +82,7 @@ def upload_and_convert_file():
             print(f'Converted to: {converted_file_path}')
             return send_file(converted_file_path, as_attachment=True, download_name=converted_file_path.name), 200
         else:
-            return jsonify({'error': 'Converted file not found'}), 404  # Not Found
+            return jsonify({'error': 'Converted while converter run.'}), 404  # Not Found
 
 
 @app.route('/status', methods=['GET'])
