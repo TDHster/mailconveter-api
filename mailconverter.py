@@ -85,7 +85,6 @@ def upload_and_convert_file():
         else:
             return jsonify({'error': 'Converted while converter run.'}), 404  # Not Found
 
-
 @app.route('/status', methods=['GET'])
 def check_status():
     return jsonify({'status': 'ok'}), 200
