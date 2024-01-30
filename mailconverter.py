@@ -21,7 +21,7 @@ app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # Limit file size to 200 M
 allowed_extensions = {'.msg', '.eml'}
 convert_to_extension = '.pdf'
 wine_path = 'wine'
-converter_path = 'MailConverter.exe'
+converter_path = './MailConverter.exe'
 
 
 
