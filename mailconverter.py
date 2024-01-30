@@ -6,6 +6,7 @@ import subprocess
 import requests
 import shutil
 import json
+import os
 
 app = Flask(__name__)
 
@@ -23,6 +24,7 @@ convert_to_extension = '.pdf'
 wine_path = 'wine'
 converter_path = './MailConverter.exe'
 
+current_directory = os.getcwd()
 
 
 def clear_folder(folder_path):
@@ -51,7 +53,7 @@ def convert_file(original_file_path):
     # subprocess.run([converter_path, str(original_path), str(converted_file_path)])
     try:
         print('Running:', wine_path, converter_path, str(original_path), str(converted_file_path))
-        subprocess.run([wine_path, converter_path, f'"{original_path}"', f'"{converted_file_path}"'], check=True)
+        subprocess.run([wine_path, converter_path, original_path, converted_file_path], check=True)
         print(f'\tIn convert_file: {str(original_path)=}, {str(converted_file_path)}, {str(converted_file_path.is_file())}')
 
     except Exception as e:
@@ -81,7 +83,10 @@ def upload_and_convert_file():
         file.save(file_path)
         print(f'Uploaded file saved: {file_path=}')
 
-        converted_file_path = convert_file(file_path)
+        relative_file_path = file_path.relative_to(current_directory)
+        # relative_output_file_path = output_file_path.relative_to(current_directory)
+
+        converted_file_path = convert_file(relative_file_path)
         print(f'Get converted result in: {converted_file_path}, is file: {converted_file_path.is_file()}')
         if converted_file_path:
             return send_file(converted_file_path, as_attachment=True, download_name=converted_file_path.name), 200
