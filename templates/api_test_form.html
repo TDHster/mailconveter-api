@@ -15,9 +15,20 @@
     <p>API URL: {{ api_endpoint }}</p>
     <label for="file">Select a file:</label>
     <input type="file" name="file" id="file" accept="{{ allowed_extensions_string }}" required>
-    <p>Allowed file extensions: <em>{{ allowed_extensions_string }}</em></p>
+    <p>Allowed file extensions: <em>{{ allowed_extensions_string }}</em><br>
+    For manual test: <em>curl -X POST -F "file=@./path_to_file.eml" {{ api_endpoint }}</em>
+    </p>
     <br>
     <input type="submit" value="Send Request to API">
+    <p>API response codes:
+    <pre>
+        200 - Ok
+        401 - No file part
+        402 - No selected file
+        403 - Wrong extension
+        404 - No result file after conversion run.
+    </pre>
+    </p>
 </form>
 
 <div id="api-response">

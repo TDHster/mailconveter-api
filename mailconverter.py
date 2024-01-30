@@ -56,19 +56,19 @@ def convert_file(original_file_path):
 
 
 @app.route('/convertfile', methods=['POST'])
-def upload_file():
+def upload_and_convert_file():
     file = request.files.get('file')
 
     if not file:
-        return jsonify({'error': 'No file part'}), 400  # Bad Request
+        return jsonify({'error': 'No file part'}), 401  # Bad Request
 
     if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400  # Bad Request
+        return jsonify({'error': 'No selected file'}), 402  # Bad Request
 
     if allowed_file(file.filename):
         filename = secure_filename(file.filename)
     else:
-        return jsonify({'error': 'Wrong extension', 'allowed_extensions': allowed_extensions}), 400  # Bad Request
+        return jsonify({'error': 'Wrong extension', 'allowed_extensions': allowed_extensions}), 403  # Bad Request
 
     with tempfile.TemporaryDirectory(dir=TEMP_UPLOAD_FOLDER) as random_temp_subfolder:
         file_path = Path(random_temp_subfolder, filename)
@@ -96,6 +96,7 @@ def check_status():
 
 # api_endpoint = 'http://127.0.0.1:5000/convertfile'
 # api_endpoint = f'http://{get_own_url()}:5000/convertfile'
+# curl -X POST -F "file=@./mail.eml" http://localhost:5000/convertfile
 
 @app.route('/api_test_form', methods=['GET', 'POST'])
 def api_test_form():
