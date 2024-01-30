@@ -11,8 +11,8 @@ app = Flask(__name__)
 
 TEMP_UPLOAD_FOLDER = Path.cwd() / 'temp_uploads'
 TEMP_UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+# Save the API response file to another temporary directory
 TEMP_REPONSE_FOLDER = Path.cwd() / 'temp_response'
-# Save the API response file to another temporary directory with the extracted filename
 TEMP_REPONSE_FOLDER.mkdir(parents=True, exist_ok=True)
 DOWNLOAD_RESPONSE_URL = '/download_response/'
 
@@ -43,6 +43,7 @@ def allowed_file(filename):
 def convert_file(original_file_path):
     # Ensure the input file exists
     original_path = Path(original_file_path)
+    print(f'\t{original_file_path} {str(original_path)}')
     if not original_path.is_file():
         return None  # File not found
 
@@ -79,7 +80,7 @@ def upload_and_convert_file():
         print(f'Uploaded file saved: {file_path=}')
 
         converted_file_path = convert_file(file_path)
-        print(f'Get converted result in: {converted_file_path}')
+        print(f'Get converted result in: {converted_file_path}, is file: {converted_file_path.is_file()}')
         if converted_file_path:
             return send_file(converted_file_path, as_attachment=True, download_name=converted_file_path.name), 200
         else:
