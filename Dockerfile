@@ -19,9 +19,11 @@ RUN rm requirements.txt
 
 COPY . /app
 
+RUN mv /app/.wine /root/
+
 HEALTHCHECK --interval=5m --timeout=10s --retries=3 \
   CMD curl -f http://localhost:5000/status || exit 1
 
 EXPOSE 5000
 
-CMD ["python", "mailconverter.py"]
+CMD ["python3", "mailconverter.py"]

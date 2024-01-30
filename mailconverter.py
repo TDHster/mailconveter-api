@@ -195,5 +195,5 @@ def download_response(filename):
 if __name__ == '__main__':
     clear_folder(TEMP_REPONSE_FOLDER)
     clear_folder(TEMP_UPLOAD_FOLDER)
-    app.run(host='0.0.0.0', debug=True, port=5000)
-    # app.run(host='0.0.0.0', port=5000)
+    #app.run(host='0.0.0.0', debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)
