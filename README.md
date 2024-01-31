@@ -1,6 +1,6 @@
 # Project Description: API Server and Test Form for File Conversion
 
-This project serves as an API server and includes a test form designed for file conversion. The server receives files through the HTTP POST method, utilizes a converter (via Wine), and responds with the converted file. The accompanying test form facilitates comprehensive testing of the entire cycle, resembling the functionality of Swagger but implemented using FastAPI.
+This project serves as an API server and includes a test form designed for file conversion. The server receives files through the HTTP POST method, utilizes a converter (via Wine), and responds with the converted file. The accompanying test form facilitates comprehensive testing of the entire cycle, resembling the functionality like of Swagger.
 
 ## Features:
 - **File Conversion:** The API server supports file conversion using a converter integrated with Wine.
@@ -9,11 +9,11 @@ This project serves as an API server and includes a test form designed for file 
 
 ## Usage:
 1. **File Submission:** Send files to the API server using the HTTP POST method.
-2. **Conversion Process:** The server initiates the file conversion process using the integrated converter.
+2. **Conversion Process:** The server initiates the file conversion process using the integrated converter (not included in project).
 3. **Response:** Receive the converted file as a response from the API server.
 
 ## Test Form:
-- **Swagger-Like Interface:** The test form provides an intuitive and Swagger-like interface for testing the API functionalities.
+- **Swagger-Like Interface:** The test form provides an intuitive and Swagger-like interface but more user friendly design for testing the API functionalities.
 - **Comprehensive Testing:** Test various scenarios, ensuring the robustness and reliability of the file conversion process.
 - **Custom Web Form Design:** The form's design is tailored to meet the specific requirements of the project, offering a unique and user-friendly experience.
 
